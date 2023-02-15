@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'LittleLemonAPI', # App
     'rest_framework', # DRF
     'rest_framework.authtoken', # DRF token 
+    'djoser' # for user authentication 
 ]
 
 MIDDLEWARE = [
@@ -128,5 +129,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES':[
         'rest_framework.authentication.TaukenAuthentication', # to put the token acces 
+        'rest_framework.authentication.SessionAuthentication', # Djoser
     ]
+}
+
+DJOSER={
+        "USER_IDF_IELD":"username",# way to authenticate with djoser 
 }
