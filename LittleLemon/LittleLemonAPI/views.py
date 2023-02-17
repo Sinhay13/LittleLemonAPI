@@ -1,8 +1,23 @@
+from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
+from .models import Category
+from .serializers import CategorySerializer
 
-# import generics to use class-based views :
-#from rest_framework import generics
+class CategoryListCreateView(generics.ListCreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
 
-# Import stuff for authantification :
-#from rest_framework.permissions import IsAuthenticated
-#from rest_framework.decorators import permission_classes # @permission_classes([IsAuthenticated])
+class CategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    lookup_field = 'id'
+
+    def retrieve(self, request, id=None, *args, **kwargs):
+        try:
+            category = self.get_object()
+        except Category.DoesNotExist:
+            raise NotFound("Category not found")
+        serializer = CategorySerializer(category)
+        return Response(serializer.data)
 
