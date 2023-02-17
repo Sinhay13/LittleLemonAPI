@@ -126,13 +126,13 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-REST_FRAMWORK = {
+REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES':[
-        'rest_framework.authentication.TaukenAuthentication', # to put the token acces 
+        'rest_framework.authentication.TokenAuthentication', # to put the token acces 
         'rest_framework.authentication.SessionAuthentication', # Djoser
     ]
 }
 
 DJOSER={
-        "USER_IDF_IELD":"username",# way to authenticate with djoser 
+        "USER_ID_FIELD":"username",# way to authenticate with djoser 
 }
