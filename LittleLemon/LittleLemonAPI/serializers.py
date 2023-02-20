@@ -11,9 +11,10 @@ class CategorySerializer(serializers.ModelSerializer):
 
 #Menu-Items:
 class MenuItemSerializer(serializers.ModelSerializer):
-    category = CategorySerializer()
+    category=CategorySerializer(read_only=True)
+    category_id=serializers.SlugField(write_only=True)
     class Meta:
         model = MenuItem
-        fields = ['id', 'title', 'price', 'featured', 'category']    # modifier ou ajouter la category_id en ecriture only et la category title en read only 
+        fields = ['id', 'title', 'price', 'featured', 'category', "category_id"]
 
 #_____________________________________________________________________#

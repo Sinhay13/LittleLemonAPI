@@ -136,3 +136,5 @@ REST_FRAMEWORK = {
 DJOSER={
         "USER_ID_FIELD":"username",# way to authenticate with djoser 
 }
+
+#CSRF_COOKIE_SECURE = False
