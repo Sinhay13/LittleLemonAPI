@@ -18,3 +18,13 @@ class MenuItemSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'price', 'featured', 'category', "category_id"]
 
 #_____________________________________________________________________#
+
+# for users management: 
+from django.contrib.auth.models import User
+
+class UserIdSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username']
