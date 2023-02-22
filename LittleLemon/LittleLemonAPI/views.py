@@ -93,18 +93,14 @@ class MenuItemRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
 #_________________________________________________________________________________________________#
 
-# group management: "Manager"
-
-
-from .serializers import UserIdSerializer
+from .serializers import UserSerializer
+# manager managment :
 class GroupManagerListView(generics.ListCreateAPIView):
-    serializer_class = UserIdSerializer
+    serializer_class = UserSerializer
 
     def get_queryset(self):
         managers_group = Group.objects.get(name='Manager')
         managers = managers_group.user_set.all()
-        for i, manager in enumerate(managers):
-            manager.id = i + 1
         return managers
 
     def initial(self, request, *args, **kwargs):
@@ -122,39 +118,31 @@ class GroupManagerListView(generics.ListCreateAPIView):
         except User.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-class GroupManagerUserView(generics.DestroyAPIView):
+
+class GroupManagerUserView(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = 'id'
+    queryset = User.objects.filter(groups__name='Manager')
+    serializer_class = UserSerializer
 
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
         if not request.user.groups.filter(name='Manager').exists():
             raise PermissionDenied()
 
-    def get_queryset(self):
-        managers_group = Group.objects.get(name='Manager')
-        return managers_group.user_set.all()
-
     def delete(self, request, *args, **kwargs):
-        manager_id = kwargs.get('manager_id')
-        user = get_object_or_404(User, id=manager_id)
+        user = self.get_object()
         managers_group = Group.objects.get(name='Manager')
         managers_group.user_set.remove(user)
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-
 #____________________________________________________________________________________________________#
 
-# group management: "Delivery"
-
+# delivery managment :
 class GroupDeliveryListView(generics.ListCreateAPIView):
-    serializer_class = UserIdSerializer
+    serializer_class = UserSerializer
 
     def get_queryset(self):
         crews_group = Group.objects.get(name='Delivery')
-        crews = crews_group.user_set.all()
-        for i, crew in enumerate(crews):
-            crew.id = i + 1
+        crews= crews_group.user_set.all()
         return crews
 
     def initial(self, request, *args, **kwargs):
@@ -172,28 +160,39 @@ class GroupDeliveryListView(generics.ListCreateAPIView):
         except User.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-class GroupDeliveryUserView(generics.DestroyAPIView):
-    lookup_field = 'crew_id'
+
+class GroupDeliveryUserView(generics.RetrieveUpdateDestroyAPIView):
+    lookup_field = 'id'
+    queryset = User.objects.filter(groups__name='Delivery')
+    serializer_class = UserSerializer
 
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
         if not request.user.groups.filter(name='Manager').exists():
             raise PermissionDenied()
 
-    def get_queryset(self):
-        crews_group = Group.objects.get(name='Delivery')
-        return crews_group.user_set.all()
-
     def delete(self, request, *args, **kwargs):
-        crews_id = kwargs.get('crews_id')
-        user = get_object_or_404(User, id=crews_id)
-        managers_group = Group.objects.get(name='Delivery')
-        managers_group.user_set.remove(user)
+        user = self.get_object()
+        crews_group = Group.objects.get(name='Delivery')
+        crews_group.user_set.remove(user)
         return Response(status=status.HTTP_204_NO_CONTENT)
-
 #____________________________________________________________________________________________________#
 
 
+# Cart: 
+from .models import Cart
+from .serializers import CartSerializer
+from rest_framework.exceptions import ValidationError
 
-# trouve le probleme pourquoi je n'arrive pas a faire la delete et verifier que les message d'erreur sois bien les meme que dans l'enoncer 
+class CartListView(generics.ListCreateAPIView):
+    serializer_class = CartSerializer
+    permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        user = self.request.user
+        return Cart.objects.filter(user=user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+#______________________________________________________________________________________________________#

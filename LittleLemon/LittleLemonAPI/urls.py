@@ -1,7 +1,7 @@
 
 from django.urls import path, include
 from django.views.generic.base import RedirectView
-from .views import CategoryListCreateView, CategoryRetrieveUpdateDestroyView, MenuItemListCreateView, MenuItemRetrieveUpdateDestroyView, GroupManagerListView, GroupManagerUserView, GroupDeliveryListView, GroupDeliveryUserView
+from .views import CategoryListCreateView, CategoryRetrieveUpdateDestroyView, MenuItemListCreateView, MenuItemRetrieveUpdateDestroyView, GroupManagerListView, GroupManagerUserView,GroupDeliveryListView, GroupDeliveryUserView , CartListView
 
 
 urlpatterns = [
@@ -13,8 +13,9 @@ urlpatterns = [
     path('category/<int:id>/', CategoryRetrieveUpdateDestroyView.as_view(), name='category-retrieve-update-destroy'),
     path('groups/manager/users/', GroupManagerListView.as_view(), name='manager-users'),
     path('groups/manager/users/<int:id>/', GroupManagerUserView.as_view(), name='user-detail'),
-    path('groups/delivery-crew/users/', GroupDeliveryListView.as_view(), name='manager-users'),
-    path('groups/delivery-crew/users/<int:pk>/', GroupDeliveryUserView.as_view(), name='user-detail'),
+    path('groups/delivery-crew/users/', GroupDeliveryListView.as_view(), name='delivery-users'),
+    path('groups/delivery-crew/users/<int:id>/', GroupDeliveryUserView.as_view(), name='crew-detail'),
+    path('cart/menu-items/', CartListView.as_view(), name='cart-list-create-delete'),
 
 
 
