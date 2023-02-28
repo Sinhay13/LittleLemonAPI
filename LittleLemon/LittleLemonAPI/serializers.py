@@ -31,14 +31,18 @@ class UserSerializer(serializers.ModelSerializer):
 # Cart :
 
 class CartSerializer(serializers.ModelSerializer):
-    menuitem = serializers.SlugRelatedField(slug_field='title', queryset=MenuItem.objects.all())
+    menuitem = serializers.PrimaryKeyRelatedField(queryset=MenuItem.objects.all())
     quantity = serializers.IntegerField(min_value=1, max_value=100)
     unit_price = serializers.DecimalField(max_digits=6, decimal_places=2, read_only=True)
     price = serializers.DecimalField(max_digits=6, decimal_places=2, read_only=True)
+    menuitem_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Cart
-        fields = ('id', 'menuitem', 'quantity', 'unit_price', 'price')
+        fields = ('id', 'menuitem', 'menuitem_name', 'quantity', 'unit_price', 'price')
+
+    def get_menuitem_name(self, obj):
+        return obj.menuitem.title
 
     def validate(self, data):
         menuitem = data['menuitem']
@@ -47,4 +51,44 @@ class CartSerializer(serializers.ModelSerializer):
         data['price'] = menuitem.price * quantity
         return data
 
+
+
+
 #______________________________________________________________________#
+
+# Orders: 
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = ('menuitem', 'quantity', 'unit_price', 'price')
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ('id', 'user', 'delivery_crew', 'status', 'total', 'date', 'items')
+
+    def create(self, validated_data):
+        items_data = validated_data.pop('items')
+        order = Order.objects.create(**validated_data)
+        for item_data in items_data:
+            OrderItem.objects.create(order=order, **item_data)
+        return order
+
+    def update(self, instance, validated_data):
+        instance.user = validated_data.get('user', instance.user)
+        instance.delivery_crew = validated_data.get('delivery_crew', instance.delivery_crew)
+        instance.status = validated_data.get('status', instance.status)
+        instance.total = validated_data.get('total', instance.total)
+        instance.save()
+
+        items_data = validated_data.get('items')
+        if items_data:
+            instance.orderitem_set.all().delete()
+            for item_data in items_data:
+                OrderItem.objects.create(order=instance, **item_data)
+
+        return instance
