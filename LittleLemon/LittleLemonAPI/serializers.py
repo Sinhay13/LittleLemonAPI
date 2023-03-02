@@ -57,38 +57,3 @@ class CartSerializer(serializers.ModelSerializer):
 #______________________________________________________________________#
 
 # Orders: 
-
-class OrderItemSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OrderItem
-        fields = ('menuitem', 'quantity', 'unit_price', 'price')
-
-
-class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Order
-        fields = ('id', 'user', 'delivery_crew', 'status', 'total', 'date', 'items')
-
-    def create(self, validated_data):
-        items_data = validated_data.pop('items')
-        order = Order.objects.create(**validated_data)
-        for item_data in items_data:
-            OrderItem.objects.create(order=order, **item_data)
-        return order
-
-    def update(self, instance, validated_data):
-        instance.user = validated_data.get('user', instance.user)
-        instance.delivery_crew = validated_data.get('delivery_crew', instance.delivery_crew)
-        instance.status = validated_data.get('status', instance.status)
-        instance.total = validated_data.get('total', instance.total)
-        instance.save()
-
-        items_data = validated_data.get('items')
-        if items_data:
-            instance.orderitem_set.all().delete()
-            for item_data in items_data:
-                OrderItem.objects.create(order=instance, **item_data)
-
-        return instance
