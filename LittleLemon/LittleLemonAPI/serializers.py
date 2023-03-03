@@ -57,3 +57,18 @@ class CartSerializer(serializers.ModelSerializer):
 #______________________________________________________________________#
 
 # Orders: 
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = ['order', 'menuitem', 'quantity', 'price']
+
+
+class OrderSerializer(serializers.ModelSerializer):
+
+    orderitem = OrderItemSerializer(many=True, read_only=True, source='order')
+
+    class Meta:
+        model = Order
+        fields = ['id', 'user', 'delivery_crew',
+                  'status', 'date', 'total', 'orderitem']

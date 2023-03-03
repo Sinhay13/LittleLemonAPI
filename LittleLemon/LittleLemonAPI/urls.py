@@ -3,7 +3,7 @@ from django.urls import path, include
 from django.views.generic.base import RedirectView
 from .views import CategoryListCreateView, CategoryRetrieveUpdateDestroyView, MenuItemListCreateView, MenuItemRetrieveUpdateDestroyView, GroupManagerListView, GroupManagerUserView,GroupDeliveryListView, GroupDeliveryUserView , CartListView
 
-
+from . import views
 
 urlpatterns = [
     path('users/', RedirectView.as_view(url='/auth/register')), # to create a user
@@ -17,6 +17,9 @@ urlpatterns = [
     path('groups/delivery-crew/users/', GroupDeliveryListView.as_view(), name='delivery-users'),
     path('groups/delivery-crew/users/<int:id>/', GroupDeliveryUserView.as_view(), name='crew-detail'),
     path('cart/menu-items/', CartListView.as_view(), name='cart-list-create-delete'),
+    path('orders', views.OrderView.as_view()),
+    path('orders/<int:pk>', views.SingleOrderView.as_view()),
+    
 
 ]
 
